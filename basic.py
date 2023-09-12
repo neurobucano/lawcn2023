@@ -10,7 +10,7 @@ class SessionHnd:
 
   def _set_session_ids(self):
     session_ids=[]
-    for filename in os.listdir(data_path):
+    for filename in os.listdir(self.data_path):
       if filename.startswith('1'):
         session_ids.append(int(filename[0:10]))
     session_ids=list(set(session_ids))
