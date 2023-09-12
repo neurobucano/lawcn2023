@@ -20,13 +20,14 @@ class SessionHnd:
     if session_id not in self.session_ids:
         raise KeyError("A session_id '{}' não foi encontrada.".format(session_id))
 
-    acronyms=self.sessions.loc[session_id].structure_acronyms
-    acronyms=acronyms.split("'")[1:-1]
-    while (', ' in acronyms):
-      acronyms.remove(', ')
-    acronyms.remove('root') # Remove root
-    acronyms = [item for item in acronyms if not item.startswith('DG-')]
-    acronyms.append('DG')
+    acronyms=[]
+    filenames=os.listdir(self.data_path)
+    for filename in filenames:
+      parts = filename.split('-')
+      if (parts[0].isnumeric()):
+        if int(parts[0])==session_id  and parts[-1]=='spk.h5':
+          acronyms.append(parts[1])
+
     acronyms.sort()
     return (acronyms)
 
