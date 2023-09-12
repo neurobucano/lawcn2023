@@ -8,7 +8,7 @@ setup(
     author_email='nivaldo.vasconcelos@ufpe.br',
     packages=find_packages(),  # Isso procura automaticamente por todos os pacotes do seu projeto
     install_requires=[
-        'pandas', 'numpy', 'os' # Certifique-se de listar todas as dependências necessárias aqui
+        'pandas', 'numpy' # Certifique-se de listar todas as dependências necessárias aqui
     ],
 )
 
