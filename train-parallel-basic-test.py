@@ -94,6 +94,20 @@ class Training():
             auc_scores.append(fold_auc)
 
         return np.mean(auc_scores)
+    
+    def _build_bin_matrix (self, spikes, bin_size=0.010):
+        ms=1e-3
+        neurons=spikes.unique()
+        nrows=len(neurons)
+        t=spikes.index
+        bins=np.arange(0,spikes.index[-1],bin_size)
+        count, tbins=np.histogram(t,bins)
+        ncols = len(count)
+        print (count.shape)
+        B=np.zeros((nrows, ncols), dtype=np.int8)
+        for i, n in enumerate(neurons):
+            B[i],_ =  np.histogram(spikes[spikes==n],bins)
+        return (B)
 
     def run_single_analysis (self, result_folder, ntrials=20):
         print(self.session_ids, self.areas)
@@ -104,7 +118,8 @@ class Training():
             return None
 
         t_positive, t_negative, estimulo, n_positive_max = self.get_stimulus()
-
+        bin_size = 0.01
+        B = self._build_bin_matrix(spikes,bin_size =bin_size)
         n_samples = min([len(t_positive),len(t_negative),250])
 
         results = []
