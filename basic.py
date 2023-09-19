@@ -2,6 +2,10 @@ import os
 import pandas as pd
 import numpy as np
 
+import os
+import pandas as pd
+import numpy as np
+
 class SessionHnd:
   def __init__(self, data_path):
     self.data_path = data_path
@@ -20,14 +24,13 @@ class SessionHnd:
     if session_id not in self.session_ids:
         raise KeyError("A session_id '{}' não foi encontrada.".format(session_id))
 
-    acronyms=[]
-    filenames=os.listdir(self.data_path)
-    for filename in filenames:
-      parts = filename.split('-')
-      if (parts[0].isnumeric()):
-        if int(parts[0])==session_id  and parts[-1]=='spk.h5':
-          acronyms.append(parts[1])
-
+    acronyms=self.sessions.loc[session_id].structure_acronyms
+    acronyms=acronyms.split("'")[1:-1]
+    while (', ' in acronyms):
+      acronyms.remove(', ')
+    acronyms.remove('root') # Remove root
+    acronyms = [item for item in acronyms if not item.startswith('DG-')]
+    acronyms.append('DG')
     acronyms.sort()
     return (acronyms)
 
@@ -66,3 +69,17 @@ class SessionHnd:
     filename = '%s/%d-rew.h5' % (self.data_path,session_id)
     reward = pd.read_hdf(filename)
     return (reward)
+
+  def get_stim (self, session_id):
+    filename = '%s/%d-stim.h5' % (self.data_path,session_id)
+    stim = pd.read_hdf(filename)
+    return (stim)
+
+  def get_stim_times (self, stim_name, session_id):
+    stim = self.get_stim (session_id)
+    times = None
+    stim_names = {'natural': 'Nat', 'spont': 'spont', 'gabor': 'gabor', 'flash': 'flash'}
+    if (stim_name in stim_names.keys()):
+      N=stim.stimulus_name.str.startswith(stim_names[stim_name])
+      times=stim[N]['start_time'].dropna().values
+    return (times)
