@@ -91,16 +91,22 @@ class NeuroRuler:
     mask = ((spikes.index>=a) & (spikes.index<=b))
     return (spikes[mask])
 
-  def inst_firing_rate (self, spikes, bin_size, a=0, b=None):
+  def inst_firing_rate (self, spikes, bin_size, a=0, b=None,duration=0.25):
     ''' Retorna a taxa instantanea de disparos de uma dada população dentro um
     intervalo dado, em uma dada resolução temporal. Retorna a informação
     dentro de um Panda Series.
     '''
-    nneurons=len(spikes.unique())
-    t=self.crop(spikes, a=a,b=b).index
-    bins=np.arange(a,b,bin_size)
-    count, bins=np.histogram(t,bins)
-    fr = pd.Series (count/(bin_size*nneurons), index=bins[0:-1])
+    if(len(spikes==0)) and not(duration is None):
+      b=a+duration
+      bins=np.arange(a,b,bin_size)
+      zeros=np.zeros_like(bins[0:-1])
+      fr = pd.Series (zeros, index=bins[0:-1])
+    else:
+      nneurons=len(spikes.unique())
+      t=self.crop(spikes, a=a,b=b).index
+      bins=np.arange(a,b,bin_size)
+      count, bins=np.histogram(t,bins)
+      fr = pd.Series (count/(bin_size*nneurons), index=bins[0:-1])
     return (fr)
 
   def get_max_on_spont(self, session_id, acronym, data_path, bin_size):

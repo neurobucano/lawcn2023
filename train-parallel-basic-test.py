@@ -103,7 +103,6 @@ class Training():
         bins=np.arange(0,spikes.index[-1],bin_size)
         count, tbins=np.histogram(t,bins)
         ncols = len(count)
-        print (count.shape)
         B=np.zeros((nrows, ncols), dtype=np.int8)
         for i, n in enumerate(neurons):
             B[i],_ =  np.histogram(spikes[spikes==n],bins)
@@ -125,6 +124,8 @@ class Training():
         results = []
         df = pd.DataFrame()
         n=len(unit_list)
+        spk= spikes
+        width=int(0.250/bin_size)
         for trial in range(0,ntrials):
             start = time.time()
             self.logger.info ('%s-%s: n=%d starting trial=%d \t %s' %  (self.session_ids, self.areas, n, trial, type(self.model)))
@@ -137,11 +138,15 @@ class Training():
             patterns_negative = []
             selected_neurons = unit_list
 
-            spk= spikes
+            
             for t0 in selected_positive:
-                patterns_positive.append(self.get_neuronal_pattern(t0=t0, spikes=spk))
+                t0=(t0/bin_size).astype(int)
+                patterns_positive.append(B[:,t0:t0+width])
+                #patterns_positive.append(self.get_neuronal_pattern(t0=t0, spikes=spk))
             for t0 in selected_negative:
-                patterns_negative.append(self.get_neuronal_pattern(t0=t0, spikes=spk))
+                t0=int(t0/bin_size)
+                patterns_negative.append(B[:,t0:t0+width])
+                #patterns_negative.append(self.get_neuronal_pattern(t0=t0, spikes=spk))
 
 
             X = np.concatenate([patterns_positive, patterns_negative])
